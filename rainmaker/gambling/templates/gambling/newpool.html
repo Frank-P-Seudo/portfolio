@@ -1,0 +1,51 @@
+{% extends "gambling/layout.html" %}
+<!-- https://simpleisbetterthancomplex.com/2015/12/04/package-of-the-week-django-widget-tweaks.html -->>
+{% load widget_tweaks %}
+
+{% block body %}
+<form action="{% url 'new' %}" method="post" class="form">
+  {% csrf_token %}
+
+  {% for hidden in form.hidden_fields %}
+    {{ hidden }}
+  {% endfor %}
+
+  {% for field in form.visible_fields %}
+    <div class="form-group">
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field|add_class:'form-control' }}
+      {% for error in field.errors %}
+        <span class="help-block">{{ error }}</span>
+      {% endfor %}
+    </div>
+  {% endfor %}
+  
+  <!-- <label for="latitude" class="font-weight-bold">Latitude</label>
+  <input type="text" id="latitude" name="latitude" class="form-control mb-2" value="0.00">
+  <label for="longitude" class="font-weight-bold">Longitude</label>
+  <input type="text" id="longitude" name="longitude" class="form-control mb-2" value="0.00">
+  <label for="date" class="font-weight-bold">Date</label>
+  <input type="date" class="form-control mb-2" id="date" name="date">
+  <label for="hour" class="font-weight-bold">Time<span class="text-warning"> (GMT+0)</span></label>
+  <input type="time" class="form-control mb-2" id="time" name="time" value="00:00">
+  <label for="odds" class="font-weight-bold"><a href="https://en.wikipedia.org/wiki/Odds#Decimal_odds" target="_blank"><span class="text-white">Decimal</span></a> Odds</label>
+  <input type="text" class="form-control mb-2" id="odds" name="odds" value="0.00">
+  <label for="max_bet" class="font-weight-bold">Max Bet<span class="text-warning"> (US$)</span></label>
+  <input type="text" class="form-control mb-2" id="max_bet" name="max_bet" value="0.0"> -->
+  <!-- <button type="submit" class="btn btn-warning" id="forecast">Submit</button> -->
+
+  <button type="submit" class="btn btn-warning mt-2" >Submit</button>
+</form>
+
+<!-- <script>
+  const inputs = document.querySelectorAll('input');
+  for (let i = 0; i < inputs.length; i++) {
+    inputs[i].classList.add('form-control', 'mb-2')
+  }
+
+  const selects = document.querySelectorAll('select');
+  for (let i = 0; i < selects.length; i++) {
+    selects[i].classList.add('form-control', 'mb-2')
+  }
+</script> -->
+{% endblock %}

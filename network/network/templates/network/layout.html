@@ -1,0 +1,88 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>{% block title %}Echo Chamber{% endblock %}</title>
+        <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous"> -->
+        <!-- bootstrap 4.6.2 -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+        <link href="{% static 'network/styles.css' %}" rel="stylesheet">
+        <style>
+            .disabled-link {
+                pointer-events: none;
+            }
+
+            .brand-font {
+                font-size: xx-large;
+            }
+
+            .fb-blue {
+                background-color: #4267B2;
+            }
+        </style>
+    </head>
+    <body>
+
+        <nav class="navbar navbar-expand-md navbar-dark fb-blue mb-3">
+            <div class="container">
+                <a href="{% url 'index' %}" class="navbar-brand font-weight-bold brand-font">Echo Chamber</a>
+                {% if user.is_authenticated %}
+                <a class="nav-link text-primary" href="{% url 'profile' user.id %}"><strong>{{ user.username }}</strong></a>
+                {% endif %}
+                <button 
+                    class="navbar-toggler" 
+                    type="button" 
+                    data-toggle="collapse" 
+                    data-target="#navbarNavDropdown" 
+                    aria-controls="navbarNavDropdown" 
+                    aria-expanded="false" 
+                    aria-label="Toggle navigation"
+                >
+                <span class="navbar-toggler-icon"></span>
+                </button>
+              
+                <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item">
+                        <a class="nav-link" href="{% url 'index' %}">All Posts</a>
+                        </li>
+                        {% if user.is_authenticated %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'following' %}">Following</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'login' %}">Log In</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'register' %}">Register</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        {% csrf_token %}
+        <main class="m-4">
+            {% block body %}
+            {% endblock %}
+        </main>
+
+        <footer class="mb-3 small text-center text-muted">
+            <div class="mb-2">Also by <a href="https://frankpseudo.com/" target="_blank">Frank P. Seudo</a></div>
+            <div>Learn about <a href="https://www.edx.org/course/cs50s-web-programming-with-python-and-javascript" target="_blank">CS50 Web</a></div>
+        </footer>
+
+        <!-- bootstrap 4.6.2 -->
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js" integrity="sha384-+sLIOodYLS7CIrQpBjl+C7nPvqq+FbNUBDunl/OZv93DB7Ln/533i8e/mZXLi/P+" crossorigin="anonymous"></script>
+
+        <!-- custome JS -->
+        <script src="{% static 'network/scripts.js' %}"></script>
+    </body>
+</html>

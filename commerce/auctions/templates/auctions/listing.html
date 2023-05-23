@@ -1,0 +1,101 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+  <h2 class="">Listing: {{ item.title }}</h2>
+  
+  {% if wonByUser %}
+    <h2 class="bg-success m-3 p-3 text-white text-center rounded">Congratulations! You won this item!!</h2>
+  {% endif %}
+
+  <div class="row p-3">
+    <div class="col-sm-6 bg-white p-2 custom-radius">
+      <img {% if item.pic %} src="{{ item.pic }}" {% else %} src="/static/auctions/placeholder.jpg" {% endif %} alt="No picture available" class="card-img-top custom-radius">
+    </div>
+    <div class="col-sm-6">
+      <table class="table">
+        <tr>
+          <td class="col-4 font-weight-bold">Description:</td>
+          <td class="col-8">{{ item.desc }}</td>
+        </tr>
+        <tr>
+          <td class="col-4 font-weight-bold">Category:</td>
+          {% if item.category %}
+          <td class="col-8">{{ item.category }}</td>
+          {% else %}
+          <td class="col-8">No category was included.</td>
+          {% endif %}
+        </tr>
+        <tr>
+          <td class="col-4 font-weight-bold">Starting bid:</td>
+          <td class="col-8">${{ item.starting_bid }}</td>
+        </tr>
+        <tr>
+          <td class="col-4 font-weight-bold">Highest bid:</td>
+          <td class="col-8">${{ item.price }}</td>
+        </tr>
+        <tr>
+          <td class="col-4 font-weight-bold">Number of bids:</td>
+          <td class="col-8">{{ item.bidQty }}</td>
+        </tr>
+        <tr>
+          <td class="col-4 font-weight-bold">Listed by:</td>
+          <td class="col-8">{{ creator.username }}</td>
+        </tr>
+      </table>
+      <!-- Watchlist function -->
+      {% if user.is_authenticated %}
+        <form action="{% url 'watchlist' %}" method="post" class="form mb-3">
+          {% csrf_token %}
+          <button type="submit" class="btn {% if watched %}btn-danger{% else %}btn-primary{% endif %} btn-block" name="listing_id" value="{{ item.id }}">
+            {% if watched %}
+              Remove from Watchlist
+            {% else %}
+              Add to Watchlist
+            {% endif %}
+          </button>
+        </form>
+
+        {% if item.open %}
+          <!-- Close the listing -->
+          {% if createdByUser %}
+          <form action="{% url 'close' %}" class="form" method="post">
+            {% csrf_token %}
+            <button class="btn btn-danger btn-block" type="submit">Close the Listing</button>
+            <input type="hidden" name="listing_id" value="{{ item.id }}">
+          </form>
+          {% else %}
+          <!-- Make a new bid -->
+          <form action="{% url 'bid' %}" class="form" method="post">
+            {% csrf_token %}
+            <input type="number" class="d-inline p-2 w-75" autocomplete="off" name="new_bid" value="New bid" placeholder="Make a new bid">
+            <input type="hidden" name="listing_id" value="{{ item.id }}" class="">
+            <button class="btn btn-info float-right" type="submit">Submit</button>
+          </form>
+          {% endif %}
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+  
+  <hr>
+  <h3 class="">Comments</h3>
+  <form action="{% url 'comment' %}" method="post" class="form">
+    {% csrf_token %}
+    <textarea name="comment" id="" class="w-100 p-2 rounded" rows="4" placeholder="Comments"></textarea>
+    <button class="btn btn-primary d-block mb-5" type="submit">Submit</button>
+    <input type="hidden" name="listing_id" value="{{ item.id }}">
+  </form>
+  {% for comment in comments %}
+  <div class="card mb-3">
+    <div class="card-header font-weight-bold">@{{ comment.bidder.username }}</div>
+    <div class="card-body">
+      <p class="card-text">{{ comment.comment }}</p>
+      <div class="card-footer text-muted">Posted at {{ comment.post_time }}</div>
+    </div>
+  </div>
+
+  {% empty %}
+  <p class="">Be the first to make a comment</p>
+  {% endfor %}
+  <br>
+{% endblock %}

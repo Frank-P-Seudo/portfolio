@@ -1,0 +1,157 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>{% block title %}Auctions{% endblock %}</title>
+        <!-- for unknow reasons, the navbar button only works with 5.1.3's bundle and the card-col only works with 4.6.2's min.css -->
+        
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+
+        <!-- http://getbootstrap.com/docs/5.1/ -->
+        <!-- <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" rel="stylesheet"> -->
+        <script crossorigin="anonymous" src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"></script>
+        
+        <!-- Google fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+        <link href="{% static 'auctions/styles.css' %}" rel="stylesheet">
+        <style>
+            .custom-radius {
+                border-radius: 1rem;
+            }
+            
+            .custom-card {
+                background-color: white;
+                border-radius: 1rem;
+                box-shadow: 0px 1px 2px black;
+            }
+
+            .custom-subtitle {
+                color: rgb(214, 92, 69)
+            }
+
+            .custom-navbar {
+                background-color: rgb(97, 51, 47);
+                color: white;
+                border: none;
+            }
+            label {
+                display: block;
+            }
+
+            body {
+                padding: 0;
+                background-color: rgb(221, 221, 221);
+                font-family: 'Roboto', sans-serif;
+            }
+
+            input {
+                display: block;
+                width: 14rem;
+                margin-bottom: 1rem;
+            }
+
+            textarea {
+                width: 80%;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Navbar from CS50 pset9 -->
+        <nav class="navbar navbar-expand-md navbar-light custom-navbar">
+            <div class="container-fluid">
+                <div>
+                    <a class="navbar-brand" href="{% url 'index' %}">
+                        <img src="/static/auctions/logo.png" alt="Logo" style="max-height: 5rem;" class="rounded">
+                    </a>
+                    <p class="mb-0">
+                        {% if user.is_authenticated %}
+                            Signed in as <strong class="">{{ user.username }}</strong>
+                        {% else %}
+                            Not signed in
+                        {% endif %}
+                    </p>
+                </div>
+                <button aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-bs-target="#navbar" data-bs-toggle="collapse" type="button">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbar">
+
+                        <ul class="nav nav-pills me-auto nav-fill w-100">
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{% url 'index' %}">Active Listings</a>
+                            </li>
+                            <!-- Dropdown for categories -->
+                            <li class="nav-item">
+                                <div class="dropdown">
+                                    <button class="btn dropdown-toggle text-white" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Categories
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <a class="dropdown-item" href="{% url 'category' '0' %}">Undefined</a>
+                                        <a class="dropdown-item" href="{% url 'category' '1' %}">Monster</a>
+                                        <a class="dropdown-item" href="{% url 'category' '2' %}">Help</a>
+                                        <a class="dropdown-item" href="{% url 'category' '3' %}">SP</a>
+                                        <a class="dropdown-item" href="{% url 'category' '4' %}">Help/SP</a>
+                                        <a class="dropdown-item" href="{% url 'category' '5' %}">R</a>
+                                        <a class="dropdown-item" href="{% url 'category' '6' %}">Ch</a>
+                                        <a class="dropdown-item" href="{% url 'category' '7' %}">Summoner</a>
+                                        <a class="dropdown-item" href="{% url 'category' '8' %}">F</a>
+                                        <a class="dropdown-item" href="{% url 'category' '9' %}">Astrology</a>
+                                    </div>
+                                </div>
+                            </li>
+                            {% if user.is_authenticated %}
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{% url 'new' %}">Create Listing</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{% url 'watchlist' %}">
+                                    {% if watchedNum %}<span class="badge badge-primary align-middle">{{ watchedNum }}</span>{% endif %} <span class="align-middle"> Watchlist</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{% url 'logout' %}">Log Out</a>
+                            </li>
+                            {% else %}
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" href="{% url 'login' %}">Log In</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" href="{% url 'register' %}">Register</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+
+                </div>
+            </div>
+        </nav>
+        
+        {% if messages %}
+            <div class="messages m-3">
+                {% for message in messages %}
+                    <div class="alert {% if message.tags %}alert-{{ message.tags }} {% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        <main class="m-3">
+            {% block body %}
+            {% endblock %}
+        </main>
+                
+        <footer class="mb-3 small text-center text-muted">
+            <div class="mb-2">Also by <a href="https://frankpseudo.com/" target="_blank">Frank P. Seudo</a></div>
+            <div>Learn about <a href="https://www.edx.org/course/cs50s-web-programming-with-python-and-javascript" target="_blank">CS50 Web</a></div>
+        </footer>
+
+        <!-- bootstrap v4.6 -->
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js" integrity="sha384-+sLIOodYLS7CIrQpBjl+C7nPvqq+FbNUBDunl/OZv93DB7Ln/533i8e/mZXLi/P+" crossorigin="anonymous"></script>
+    </body>
+</html>

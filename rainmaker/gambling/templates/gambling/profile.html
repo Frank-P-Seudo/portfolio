@@ -1,0 +1,68 @@
+{% extends 'gambling/layout.html' %}
+<!-- https://simpleisbetterthancomplex.com/2015/12/04/package-of-the-week-django-widget-tweaks.html -->>
+{% load widget_tweaks %}
+{% load humanize %}
+
+{% block body %}
+  {% if user.balance < 0 %}
+  <div class="alert alert-danger my-3">
+    <strong>PAY UP BEFORE WE HANG YOU UP !!!</strong>
+  </div>
+  {% endif %}
+  <h3 class="text-warning">Add Funds</h3>
+  <form action="{% url 'fund' %}" method="post" class="form">
+    {% csrf_token %}
+    {% for hidden in form.hidden_fields %}
+      {{ hidden }}
+    {% endfor %}
+
+    {% for field in form.visible_fields %}
+      <div class="form-group">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field|add_class:'form-control' }}
+        {% for error in field.errors %}
+          <span class="help-block">{{ error }}</span>
+        {% endfor %}
+      </div>
+    {% endfor %}
+
+    <button class="btn btn-primary" type="submit">Confirm</button>
+  </form>
+  <hr>
+  <h3 class="text-warning">Your Bets</h3>
+  {% for pool in pools %}
+  <div class="card mb-3 text-dark">
+      <!-- different from Index: the card-header is different -->
+      <p class="card-header">You betted <span class="text-danger font-weight-bold">${{ pool.wager | intcomma}}</span> on the pool created by <span class="text-primary font-weight-bold">{{ pool.house }}</span> {{ pool.timestamp | naturaltime}}:</p>
+      <div class="card-body {% if pool.active %}bg-white text-dark{% else %}bg-dark text-white{% endif %}" id="card-{{ pool.id }}">
+          <div class="card-text mb-2">At latitude <span class="font-weight-bold">{{ pool.lat}}</span>, longitude: <span class="font-weight-bold">{{ pool.long }}</span>, it will rain at <span class="font-weight-bold">{{ pool.timeslot}}</span> (GMT+0) on <span class="font-weight-bold">{{ pool.date}}</span>.</div>
+          <div class="card-text mb-2"></div>
+          <div class="card-text mb-2"></div>
+          <div class="row">
+              <div class="col-4">Quoted odds: <span class="font-weight-bold">{{ pool.odds }}</span></div>
+              <div class="col-4">Max Bet: <span class="font-weight-bold">${{ pool.max_bet |intcomma }}</span></div>
+              <div class="col-4">Status: <span data-status="{{ pool.active }}" data-lat="{{ pool.lat }}" data-long="{{ pool.long }}" data-date="{{ pool.date }}" data-hour="{{ pool.hour }}" data-pool="{{ pool.id }}" class="font-weight-bold pool-status" id="span-{{ pool.id }}">{% if pool.active %}Open{% else %}Closed{% endif %}</span></div>
+          </div>
+          <!-- different from Index: only a watch button is available -->
+          <div class="d-flex justify-content-between pt-2">
+              <button class="btn btn btn-info btn-follow" data-pool="{{ pool.id }}" data-user="{{ user.id }}">{% if pool.watched %}Unwatch{% else %}Watch{% endif %}</button>
+          </div>
+          <div class="grow" id="hidden-{{ pool.id }}" style="display: none;">
+              <input type="text" id="wager-{{ pool.id }}" class="form-control my-3" placeholder="US$ 0.00" id="input-{{ pool.id }}">
+              <button class="btn btn-primary btn-sm" id="confirm-{{ pool.id }}" data-pool="{{ pool.id }}" data-user="{{ user.id }}">Confirm</button>
+          </div>
+          {% if pool.winner %}
+          <div class="">
+              <p class='display-4 mt-2 mb-0 text-center'>The <strong class='text-danger'>{{ pool.winner }}</strong> won!!!</p>
+              <p class="text-right m-0 font-italic">Thus spoke Rainmaker</p>
+          </div>
+          {% endif %}
+    </div>
+  </div> 
+  {% empty %}
+      <p>You haven't placed any bet yet.</p>
+  {% endfor %}
+  <hr>
+  <h4 class="">Looking for pools created by yourself? Click <a href="{% url 'myPool' %}" class="text-warning">here</a>.</h4>
+  <hr>
+{% endblock %}

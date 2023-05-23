@@ -1,0 +1,73 @@
+{% extends "gambling/layout.html" %}
+
+{% load humanize %}
+
+{% block body %}
+  <!-- an empty div for JS to tell if it is index page -->
+  <div id="page-identifier" style="display: none;"></div>
+
+  {% for pool in pools %}
+  <div class="card mb-3 text-dark">
+      <p class="card-header"><span class="text-primary font-weight-bold">{{ pool.house }}</span> created a new pool {{ pool.timestamp | naturaltime}}:</p>
+      <div class="card-body {% if pool.active %}bg-white text-dark{% else %}bg-dark text-white{% endif %}" id="card-{{ pool.id }}">
+          <div class="card-text mb-2">At latitude <span class="font-weight-bold">{{ pool.lat}}</span>, longitude: <span class="font-weight-bold">{{ pool.long }}</span>, it will rain at <span class="font-weight-bold">{{ pool.timeslot}}</span> (GMT+0) on <span class="font-weight-bold">{{ pool.date}}</span>.</div>
+          <div class="card-text mb-2"></div>
+          <div class="card-text mb-2"></div>
+          <div class="row">
+            <div class="col-4">Quoted odds: <span class="font-weight-bold">{{ pool.odds }}</span></div>
+            <div class="col-4">Max Bet: <span class="font-weight-bold">${{ pool.max_bet |intcomma }}</span></div>
+            <div class="col-4">Status: <span data-status="{{ pool.active }}" data-lat="{{ pool.lat }}" data-long="{{ pool.long }}" data-date="{{ pool.date }}" data-hour="{{ pool.hour }}" data-pool="{{ pool.id }}" class="font-weight-bold pool-status" id="span-{{ pool.id }}">{% if pool.active %}Open{% else %}Closed{% endif %}</span></div>
+          </div>
+          <div class="d-flex justify-content-between pt-2">
+              {% if user.is_authenticated %}
+                {% if pool.active %}
+                  {% if not pool.createdByUser %}
+                    {% if pool.bettedByUser %}
+                    <button class="btn btn btn-danger" id="button-{{ pool.id }}" data-pool="{{ pool.id }}" data-user="{{ user.id }}">Betted ${{ pool.wager | intcomma}}</button>
+                    {% else %}
+                    <button class="btn btn btn-danger btn-bet" id="button-{{ pool.id }}" data-pool="{{ pool.id }}" data-user="{{ user.id }}">Bet against {{ pool.house }}</button>
+                    {% endif %}
+                  {% endif %}
+                {% endif %}
+              <button class="btn btn btn-info btn-follow" data-pool="{{ pool.id }}" data-user="{{ user.id }}">{% if pool.watched %}Unwatch{% else %}Watch{% endif %}</button>
+              {% endif %}
+          </div>
+          <div class="grow" id="hidden-{{ pool.id }}" style="display: none;">
+            <input type="text" id="wager-{{ pool.id }}" class="form-control my-3" placeholder="US$ 0.00" id="input-{{ pool.id }}">
+            <button class="btn btn-primary btn-sm" id="confirm-{{ pool.id }}" data-pool="{{ pool.id }}" data-user="{{ user.id }}">Confirm</button>
+          </div>
+          {% if pool.winner %}
+            <div class="">
+              <p class='display-4 mt-2 mb-0 text-center'>The <strong class='text-danger'>{{ pool.winner }}</strong> won!!!</p>
+              <p class="text-right m-0 font-italic">Thus spoke Rainmaker</p>
+            </div>
+          {% endif %}
+    </div>
+  </div> 
+  {% empty %}
+    <p class="display-4 text-center">No pools were found.</p>
+  {% endfor %}
+
+  <!-- pagination stuff -->
+  {% if pools %}
+  <div class="pagination justify-content-center">
+      <span class="step-links">
+          
+          <a {% if pools.has_previous %} class="text-warning" href="?page=1" {% else %} class="text-muted disabled-link" {% endif %}>&laquo; First </a>
+          <span>&nbsp; &nbsp;</span>
+          <a {% if pools.has_previous %} class="text-warning" href="?page={{ pools.previous_page_number }}" {% else %} class="text-muted disabled-link" {% endif %}>Previous</a>
+          
+  
+          <span class="current mx-2">
+              Page {{ pools.number }} of {{ pools.paginator.num_pages }}
+          </span>
+  
+          
+          <a {% if pools.has_next %} class="text-warning" href="?page={{ pools.next_page_number }}" {% else %} class="text-muted disabled-link" {% endif %}>Next</a>
+          <span>&nbsp; &nbsp;</span>
+          <a {% if pools.has_next %} class="text-warning" href="?page={{ pools.paginator.num_pages }}" {% else %} class="text-muted disabled-link" {% endif %}> Last &raquo;</a>
+          
+      </span>
+  </div>
+  {% endif %}
+{% endblock %}

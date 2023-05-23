@@ -1,0 +1,3 @@
+django-humanize
+django-widget-tweaks
+django-credit-cards

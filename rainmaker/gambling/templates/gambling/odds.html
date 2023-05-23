@@ -1,0 +1,17 @@
+{% extends "gambling/layout.html" %}
+
+{% block body %}
+<div id="result" class="grow"></div>
+
+<label for="latitude" class="font-weight-bold">Latitude</label>
+<input type="text" id="latitude" class="form-control mb-2" value="0.00">
+<label for="longitude" class="font-weight-bold">Longitude</label>
+<input type="text" id="longitude" class="form-control mb-2" value="0.00">
+<label for="date" class="font-weight-bold">Date</label>
+<input type="date" class="form-control mb-2" id="date">
+<label for="hour" class="font-weight-bold">Time<span class="text-warning"> (GMT+0)</span></label>
+<input type="time" class="form-control mb-2" id="time" value="00:00">
+
+<button type="submit" class="btn btn-warning mt-2" id="forecast">Submit</button>
+
+{% endblock %}

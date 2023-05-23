@@ -1,0 +1,100 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+    <!-- if victim exists, that means profile page is being rendered -->
+    {% if victim %}
+        <h2><span class="font-weight-bold">{{ victim.username }}</span> has</h2>
+        <p class="ml-2">. . . <span class="font-weight-bold" id="stalker-count">{{ victim.follower_count }}</span> stalkers, which may or may not be sex offenders.</p>
+        <p class="ml-2">. . . been stalking <span class="font-weight-bold">{{ victim.following_count}}</span> users, which may or may not be bots.</p>
+        {% if user.is_authenticated %}
+            <!-- the follow/unfollow button is only available when the victim != user-->
+            {% if not victim.narcissistic %}
+            <button class="btn btn-primary btn-sm" id="btn-follow" data-user="{{ user.id }}" data-victim="{{ victim.id }}">
+                {% if victim.followed %}
+                    Unfollow
+                {% else %}
+                    Follow
+                {% endif %}
+            </button>
+            {% endif %}
+        {% endif %}
+        <hr>
+        <h3>{{ victim.username }}'s Wonderful Ideas:</h3>
+    
+    <!-- if not, then either index or following page is being rendered -->
+    {% else %}
+        <!-- New Post is available only to (i) index page and (ii) authenticated users -->
+        {% if index %}
+            {% if user.is_authenticated %}
+            <form action="{% url 'post' %}" method="post" class="form">
+                {% csrf_token %}
+                <label class="display-6 font-weight-bold" for="new_post">New Post</label>
+                <textarea name="post" id="new_post" class="form-control w-100" placeholder="Share your brilliant thoughts with narcissist minds like yours"></textarea>
+                <button type="submit" class="btn btn-primary mt-2" id="post-btn">Post</button>
+            </form>
+            {% endif %}
+        <!-- Following page -->
+        {% else %}
+            <h3>Your preys were saying . . .</h3>
+        {% endif %}
+        <hr>
+    {% endif %}
+
+    <!-- post stuff -->
+    {% for post in posts %}
+    <div class="card mb-3" id="card-{{ post.id }}">
+        <div class="card-header font-weight-bold">
+            @<a href="{% url 'profile' post.creator.id %}" class="">{{ post.creator }}</a>
+        </div>
+        <div class="card-body">
+            <div class="card-text mb-2" id="post-body-{{ post.id }}">{{ post.post }}</div>
+            <div class="card-footer text-muted">Originally posted at {{ post.timestamp }}</div>
+            <div class="d-flex justify-content-between pt-2">
+                <small class="text-primary">Likes: 
+                    <span id="like-count-{{ post.id }}">{{ post.like_count }}</span>
+                </small>
+                {% if user.is_authenticated %}
+                <button class="btn btn-sm btn-primary btn-like" data-post="{{ post.id }}" data-user="{{ user.id }}">{% if post.liked %}Unlike{% else %}Like{% endif %}</button>
+                {% endif %}
+            </div>
+        </div>
+        {% if post.createdByUser %}
+        <button class="btn btn-info m-2 btn-edit" data-post="{{ post.id }}">Edit</button>
+        {% endif %}
+    </div> 
+    {% empty %}
+        <h3 class="text-center m-5 text-muted">
+            <!-- when index page has no posts -->
+            {% if index %}
+                <p class="">Oops, no one has made any post in Echo Chamber, ever.</p>
+                <p class="">Be the first to post and earn that bragging right!</p>
+            <!-- when following/profile has no posts -->
+            {% else %}
+                <p class="">Oops, looks like whomever you are obsessed with haven't imparted their wisdom to the Internet.</p>
+            {% endif %}
+        </h3>
+    {% endfor %}
+    
+    <!-- pagination stuff -->
+    {% if posts %}
+    <div class="pagination justify-content-center">
+        <span class="step-links">
+            
+            <a {% if posts.has_previous %} href="?page=1" {% else %} class="text-muted disabled-link" {% endif %}>&laquo; First </a>
+            <span>&nbsp; &nbsp;</span>
+            <a {% if posts.has_previous %} href="?page={{ posts.previous_page_number }}" {% else %} class="text-muted disabled-link" {% endif %}>Previous</a>
+            
+    
+            <span class="current mx-2">
+                Page {{ posts.number }} of {{ posts.paginator.num_pages }}
+            </span>
+    
+            
+            <a {% if posts.has_next %} href="?page={{ posts.next_page_number }}" {% else %} class="text-muted disabled-link" {% endif %}>Next</a>
+            <span>&nbsp; &nbsp;</span>
+            <a {% if posts.has_next %} href="?page={{ posts.paginator.num_pages }}" {% else %} class="text-muted disabled-link" {% endif %}> Last &raquo;</a>
+            
+        </span>
+    </div>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,155 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>{% block title %}Rainmaker{% endblock %}</title>
+        <!-- bootstrap 4.6.2 -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+        <!-- Google fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+        <!-- <link href="{% static 'gambling/styles.css' %}" rel="stylesheet"> -->
+        <style>
+            body {
+                background-color: #408EC6;
+                color: white;
+                font-family: 'Roboto', sans-serif;
+                padding-top: 5.5rem;
+            }
+            
+            .navbar-custom {
+                background-color: #1E2761;
+            }
+
+            .disabled-link {
+                pointer-events: none;
+            }
+
+            .exclamation-font {
+                font-size: x-large;
+            }
+
+            .brand-font {
+                font-size: xx-large;
+            }
+            
+            @keyframes grow {
+                0% {visibility: hidden; opacity: 0; height: 0%; line-height: 0%;}
+                100% {visibility: visible; opacity: 1; height: 100%; line-height: 100%;}
+            }
+
+            .grow {
+                animation-name: grow;
+                animation-duration: 2s;
+                animation-fill-mode: forwards;
+                animation-play-state: paused;
+            }
+
+        </style>
+    </head>
+    <body>
+
+        <nav class="navbar navbar-expand-md navbar-dark navbar-custom mb-3 text-light fixed-top">
+            <div class="container px-0 mx-0">
+                <a href="{% url 'index' %}" class="navbar-brand font-weight-bold brand-font text-warning">Rainmaker</a>
+                {% if user.is_authenticated %}
+                <a class="nav-link text-light" href="{% url 'profile' %}">
+                    <div class="font-weight-bold">
+                        <p class="p-0 m-0">{{ user.username }}'s balance</p>
+                        <p class="p-0 m-0">&#11153;&nbsp; $<span id="user-balance" data-user="{{ user.id }}" class="{% if user.balance < 0 %}text-danger {% endif %}">{{ user.balance}}</span></p>
+                    </div>
+                </a>
+                {% endif %}
+                <button 
+                    class="navbar-toggler" 
+                    type="button" 
+                    data-toggle="collapse" 
+                    data-target="#navbarNavDropdown" 
+                    aria-controls="navbarNavDropdown" 
+                    aria-expanded="false" 
+                    aria-label="Toggle navigation"
+                >
+                <span class="navbar-toggler-icon"></span>
+                </button>
+              
+                <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                    <div class="dropdown">
+                        <button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          Search
+                        </button>
+                        <div class="dropdown-menu p-2 bg-warning" aria-labelledby="dropdownMenuButton">
+                            <form action="{% url 'search' %}" class="form-inline my-2 my-lg-0">
+                                <input class="form-control mr-sm-2 mb-2" type="search" placeholder="Search" name="keyword">
+                                <button class="btn btn-sm btn-primary my-2 my-sm-0" type="submit">Go</button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item">
+                        <a class="nav-link text-warning" href="{% url 'active' %}">Active Pools</a>
+                        </li>
+                        {% if user.is_authenticated %}
+                            <li class="nav-item">
+                                <a class="nav-link text-warning" href="{% url 'new' %}">New Pool</a>
+                            </li>
+                        {% endif %}
+                        <li class="nav-item">
+                            <a class="nav-link text-warning" href="{% url 'odds' %}">Odds</a>
+                        </li>
+                        {% if user.is_authenticated %}
+                            <li class="nav-item">
+                                <a class="nav-link text-warning" href="{% url 'profile' %}">My Profile</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-warning" href="{% url 'watchlist' %}"><span id="watch-count" class="badge badge-primary align-text-top">{{ user.watchings }}</span> Watchlist</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-warning" href="{% url 'logout' %}">Log Out</a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link text-warning" href="{% url 'login' %}">Log In</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-warning" href="{% url 'register' %}">Register</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        
+        {% if messages %}
+            <div class="messages m-3">
+                {% for message in messages %}
+                    <div class="alert {% if message.tags %}alert-{{ message.tags }} {% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% csrf_token %}
+        <main class="m-4">
+            {% block body %}
+            {% endblock %}
+        </main>
+
+        <footer class="mb-3 small d-flex justify-content-center text-light">
+            <div class="mx-3">Data by <a href="https://open-meteo.com/" target="_blank"><span class="text-warning">Open-Meteo</span></a></div>
+            <div class="mx-3">Learn about <a href="https://www.edx.org/course/cs50s-web-programming-with-python-and-javascript" target="_blank" class="text-warning">CS50 Web</a></div>
+            <div class="mx-3">Also by <a href="https://frankpseudo.com/" target="_blank" class="text-warning">Frank P. Seudo</a></div>
+        </footer>
+
+        <!-- bootstrap 4.6.2 -->
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js" integrity="sha384-+sLIOodYLS7CIrQpBjl+C7nPvqq+FbNUBDunl/OZv93DB7Ln/533i8e/mZXLi/P+" crossorigin="anonymous"></script>
+
+        <!-- custome JS -->
+        <script src="{% static 'gambling/scripts.js' %}"></script>
+    </body>
+</html>
